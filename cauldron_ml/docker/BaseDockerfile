@@ -1,0 +1,54 @@
+# This file will be processed as a python formatted string. The root image will be something like
+# europe-west2-docker.pkg.dev/msm-groupdata-sharedresources/base-images/python:3.10-slim
+# Therefore build arguments need to be enclosed in double curley brackets
+FROM europe-west2-docker.pkg.dev/msm-groupdata-sharedresources/base-images/python:3.12-slim
+
+WORKDIR /usr/local/src/kfp/components
+
+# Use bash to run the RUN commands
+SHELL ["/bin/bash", "-c"]
+
+ARG PROJECT_NAME
+
+# The uv installer requires curl (and certificates) to download the release archive
+# Building projects from a git repo requires git and build essentials
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates git build-essential clang
+
+# Download the latest installer
+ADD https://astral.sh/uv/0.4.30/install.sh /uv-installer.sh
+
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.cargo/bin/:$PATH"
+
+# Copy should come after dependency installs to prevent cache invalidation
+COPY pipelines/${PROJECT_NAME} pipelines/${PROJECT_NAME}
+COPY cauldron-ml cauldron-ml
+
+RUN export $(grep -v '^#' pipelines/${PROJECT_NAME}/build/ci_workflow.env | xargs) && \
+    uv venv --python $PYENV_VERSION
+
+# Put the venv at the start of the path to activate the .venv environment
+ENV PATH="/usr/local/src/kfp/components/.venv/bin:$PATH"
+
+RUN set -e && \
+    echo "docker-repo: europe-west2-docker.pkg.dev/msm-groupdata-sharedresources/data-science-ml-pipelines" >> ~/.caulprofile && \
+    echo "user-prefix: ${USER_PREFIX_ENV}" >> ~/.caulprofile && \
+    echo "production-project-name: msmg-datascience-prod" >> ~/.caulprofile && \
+    echo "production-project-numeric-id: '612279675388'" >> ~/.caulprofile && \
+    echo "sandbox-project-name: msmg-datascience-explore" >> ~/.caulprofile && \
+    echo "sandbox-project-numeric-id: '243205181736'" >> ~/.caulprofile
+
+RUN set -e && \
+    uv pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-cache-dir --upgrade pip setuptools wheel && \
+    uv pip install cauldron-ml/ && \
+    uv pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-cache-dir -r pipelines/${PROJECT_NAME}/build/project_requirements.txt && \
+    uv cache clean
+
+RUN apt-get autoremove -y --purge build-essential clang && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf pipelines

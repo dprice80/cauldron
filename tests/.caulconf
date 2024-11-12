@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=https://json.schemastore.org/yamllint.json
+CAUL_PIPELINES_IMAGE_REPO: europe-west2-docker.pkg.dev/msm-groupdata-sharedresources/data-science-ml-pipelines
+CAUL_PIPELINES_IMAGE_TAG: europe-west2-docker.pkg.dev/msm-groupdata-sharedresources/data-science-ml-pipelines/unit_test_component:latest
+CAUL_PIPELINES_PROJECT_PATH: /home/darren_price_moneysupermarket_co/dsmlp-dependabot/cauldron-ml/tests/pipelines/unit_test
+CAUL_PIPELINES_ROOT_PATH: /home/darren_price_moneysupermarket_co/dsmlp-dependabot/cauldron-ml/tests
+CAUL_PROJECT_NAME: unit_test
+CAUL_USER_PREFIX: unit_test

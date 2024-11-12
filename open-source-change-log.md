@@ -1,0 +1,21 @@
+# Plan
+## in cli.py
+- [x] Change all hard coded links to /pipelines//
+- [x] OR add a function to create /pipelines/ when initiating the first project
+- [x] Decide whether projects will be simply added to projects folder when creating a new project (probably should warn)
+- [x] MLOPS_PIPELINES_IMAGE_TAG is hard coded to europe-west2-docker.pkg.dev
+- [x] Do I need to change functions in cli to private functions? (not done)
+- [ ] Allow using service account
+- [ ] Add new description to callback
+- [ ] Modularise code
+- [ ] Create a new template
+- [ ] Decide what is allowed in the project path, and various names etc (underscores etc)
+- [ ] Will it work on Windows?
+- [ ] Remove references to robot-scientist@msmg-datascience-explore.iam.gserviceaccount.com
+- [ ] Remove references to msm-groupdata-customer-dev
+- [ ] Generalise the create command to work with any GCP project
+- [ ] Change names of variables like MLOPS_*
+- [ ] Documentation (README)
+- [ ] Documentation (Website)
+- [ ] Add CI to toolbox repo
+- [ ] Add pre-commit hooks and tests
