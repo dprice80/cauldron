@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "cauldron-ml"
+version = "0.5.0"
+description = "A package for managing kubeflow pipelines in Vertex AI"
+authors = ["Darren Price <darren.price@moneysupermarket.com>"]
+readme = "README.md"
+packages = [
+    { include = "cauldron_ml" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+typer = {version = ">=0.12.0,<1.0.0"}
+pyyaml = ">=6.0.0,<7.0.0"
+python_dotenv = ">=1.0.0,<2.0.0"
+kfp = ">=2.9.0,<3.0.0"
+google-cloud-aiplatform = ">=1.65.0,<2.0.0"
+google-cloud-bigquery-storage = ">=2.0.0,<3.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest-mock = ">=3.6.1,<4.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+caul = "cauldron_ml.cli:app"

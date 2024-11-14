@@ -1,0 +1,44 @@
+ARG BASE_IMAGE=none
+
+FROM ${BASE_IMAGE}
+
+WORKDIR /usr/local/src/kfp/components
+
+# Use bash to run the RUN commands
+SHELL ["/bin/bash", "-c"]
+
+ARG PROJECT_NAME
+
+# The uv installer requires curl (and certificates) to download the release archive
+# Building projects from a git repo requires git and build essentials
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates git build-essential clang
+
+# Download the latest installer
+ADD https://astral.sh/uv/0.4.30/install.sh /uv-installer.sh
+
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.cargo/bin/:$PATH"
+
+# Copy should come after dependency installs to prevent cache invalidation
+COPY pipelines/${PROJECT_NAME} pipelines/${PROJECT_NAME}
+
+RUN export $(grep -v '^#' pipelines/${PROJECT_NAME}/build/ci_workflow.env | xargs) && \
+    uv venv --python $PYENV_VERSION
+
+# Put the venv at the start of the path to activate the .venv environment
+ENV PATH="/usr/local/src/kfp/components/.venv/bin:$PATH"
+
+RUN set -e && \
+    uv pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-cache-dir --upgrade pip setuptools wheel && \
+    uv pip install git+https://github.com/dprice80/cauldron-ml.git && \
+    uv pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-cache-dir -r pipelines/${PROJECT_NAME}/build/project_requirements.txt && \
+    uv cache clean
+
+RUN apt-get autoremove -y --purge build-essential clang && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf pipelines
