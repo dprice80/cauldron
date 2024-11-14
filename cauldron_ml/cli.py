@@ -364,7 +364,6 @@ def build(use_cache: bool = False,
         mkdir {config['CAUL_PIPELINES_ROOT_PATH']}/vdist
         cp -rf {config['CAUL_PIPELINES_PROJECT_PATH']}/model/* {config['CAUL_PIPELINES_ROOT_PATH']}/vdist
         cp -rf {config['CAUL_PIPELINES_PROJECT_PATH']}/build/* {config['CAUL_PIPELINES_ROOT_PATH']}/vdist
-        cp -rf {config['CAUL_PIPELINES_ROOT_PATH']}/cauldron-ml {config['CAUL_PIPELINES_ROOT_PATH']}/vdist
     """,
         shell=True,
         check=True
