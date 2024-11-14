@@ -340,7 +340,7 @@ def build(use_cache: bool = False,
             use_cache_arg = ""
 
         dockerfile = str(Path(cauldron_package_path[0]) / "docker/Dockerfile")
-        run_command = dedent(f"""
+        run_command = dedent(f"""\
             cd {config['CAUL_PIPELINES_ROOT_PATH']}
             docker build -t {IMAGE_NAME} -f {dockerfile}{use_cache_arg} \
             --build-arg PROJECT_NAME={project_name} \
@@ -348,7 +348,8 @@ def build(use_cache: bool = False,
             --build-arg USER_PREFIX={user_prefix} \
             --build-arg DOCKER_REPO="{config['CAUL_PIPELINES_IMAGE_REPO']}" \
             --build-arg PRODUCTION_SERVICE_ACCOUNT="{profile['production-service-account']}" \
-            --build-arg SANDBOX_SERVICE_ACCOUNT="{profile['sandbox-service-account']}" .
+            --build-arg SANDBOX_SERVICE_ACCOUNT="{profile['sandbox-service-account']}" \
+            --build-arg DOKER_BASE_IMAGE="{profile['docker-base-image']}" .\
             """)
         sub.run(run_command, shell=True, check=True)
 
