@@ -247,14 +247,14 @@ def rename_docker_image(old_image_name: str, new_tag: str):
 def check_base_image_exists():
     config = read_config_yaml()
     profile = read_profile_yaml()
+    tag = f"{profile['user-prefix']}_base"
     image_path, _ = config["CAUL_PIPELINES_IMAGE_TAG"].split(':')
-    typer.echo("[CauldronML] Checking for ")
+    typer.echo(f"[CauldronML] Checking for existing base image in the remote repo ({image_path}:{tag})")
     result = sub.run(f"gcloud container images list-tags --filter base {image_path}", shell=True, check=True, stdout=sub.PIPE)
     if "base" in result.stdout.decode():
         return True
 
     # Check if the image exists locally
-    tag = f"{profile['user-prefix']}_base"
     local_result = sub.run(f"docker images -q {image_path}:{tag}", shell=True, check=True, stdout=sub.PIPE)
     image_id = local_result.stdout.decode().strip()
 

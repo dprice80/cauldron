@@ -57,12 +57,39 @@ caul init
 
 This will create a yaml file called ~/.caulprofile. This file should be modified by the user with the following settings:
 
-```yaml
-docker-repo:
-docker-base-image: europe-west2-docker.pkg.dev/msm-groupdata-sharedresources/base-images/python:3.12-slim
-user-prefix: dprice
-production-project-name: msmg-datascience-prod
-sandbox-project-name: msmg-datascience-explore
-production-service-account: robot-scientist@msmg-datascience-prod.iam.gserviceaccount.com
-sandbox-service-account: robot-scientist@msmg-datascience-explore.iam.gserviceaccount.com
+```yaml 
+docker-repo: <repo-address>/subfolder  # no trailing slash
+docker-base-image: python:3.12-slim  # By default, cauldron pipelines work with slim versions of python images (tested with 3.12).
+user-prefix: jbloggs
+production-project-name: foo-bar-prod
+sandbox-project-name: foo-bar-sandbox
+production-service-account: my-sa@foo-bar-prod@iam.gserviceaccount.com
+sandbox-service-account: my-sa@foo-bar-sandbox@iam.gserviceaccount.com
 ```
+
+Note that ```docker-repo``` should include the folder where the images are stored. The ```production-project-name``` and ```production-service-account``` can be the same as the sandbox accounts. The prefix and image tags are set within the CI pipeline workflow, not by cauldron, so the user can decide to run all production pipelines and development pipelines in the same GCP project, although we do not recommend this.
+
+We will soon add a github action to take care of the build process, setting the arguments correctly etc. At MSM we use a matrix build strategy to build all our pipelines within a mono-repo, only building new images when we detect a change in that project.
+
+```bash
+caul create
+```
+
+```bash
+caul build --base
+```
+
+```bash
+caul build
+```
+
+```bash
+caul deploy
+```
+
+```bash
+caul run
+```
+
+You should now have a running pipeline.
+
