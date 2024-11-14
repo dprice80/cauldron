@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cauldron-ml"
-version = "0.5.0"
+version = "0.6.0"
 description = "A package for managing kubeflow pipelines in Vertex AI"
 authors = ["Darren Price <darren.price@moneysupermarket.com>"]
 readme = "README.md"
