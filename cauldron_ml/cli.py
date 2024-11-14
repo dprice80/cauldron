@@ -54,6 +54,8 @@ def init():
                 user-prefix: your-user-prefix
                 production-project-name: your-production-project-name
                 sandbox-project-name: your-sandbox-project-name
+                production-service-account: your-production-service-account
+                sandbox-service-account: your-sandbox-service-account
             """))
         typer.echo(f"Created .caulprofile at {profile_path}")
     else:
@@ -244,12 +246,15 @@ def rename_docker_image(old_image_name: str, new_tag: str):
 
 def check_base_image_exists():
     config = read_config_yaml()
-    image_path, tag = config["CAUL_PIPELINES_IMAGE_TAG"].split(':')
+    profile = read_profile_yaml()
+    image_path, _ = config["CAUL_PIPELINES_IMAGE_TAG"].split(':')
+    typer.echo("[CauldronML] Checking for ")
     result = sub.run(f"gcloud container images list-tags --filter base {image_path}", shell=True, check=True, stdout=sub.PIPE)
     if "base" in result.stdout.decode():
         return True
 
     # Check if the image exists locally
+    tag = f"{profile['user-prefix']}_base"
     local_result = sub.run(f"docker images -q {image_path}:{tag}", shell=True, check=True, stdout=sub.PIPE)
     image_id = local_result.stdout.decode().strip()
 
@@ -335,11 +340,16 @@ def build(use_cache: bool = False,
             use_cache_arg = ""
 
         dockerfile = str(Path(cauldron_package_path[0]) / "docker/Dockerfile")
-        run_command = f"""
+        run_command = dedent(f"""
             cd {config['CAUL_PIPELINES_ROOT_PATH']}
-            docker build -t {IMAGE_NAME} -f {dockerfile} --build-arg PROJECT_NAME={project_name} --build-arg \
-                IMAGE_TAG={VERSION_TAG} --build-arg USER_PREFIX={user_prefix}{use_cache_arg} --build-args=DOCKER_REPO={config['CAUL_PIPELINES_IMAGE_REPO']} .
-            """
+            docker build -t {IMAGE_NAME} -f {dockerfile}{use_cache_arg} \
+            --build-arg PROJECT_NAME={project_name} \
+            --build-arg IMAGE_TAG={VERSION_TAG} \
+            --build-arg USER_PREFIX={user_prefix} \
+            --build-arg DOCKER_REPO="{config['CAUL_PIPELINES_IMAGE_REPO']}" \
+            --build-arg PRODUCTION_SERVICE_ACCOUNT="{profile['production-service-account']}" \
+            --build-arg SANDBOX_SERVICE_ACCOUNT="{profile['sandbox-service-account']}" .
+            """)
         sub.run(run_command, shell=True, check=True)
 
     typer.echo("\n[CauldronML] Building kubeflow pipeline\n")
@@ -368,7 +378,8 @@ def build(use_cache: bool = False,
 @app.command()
 def deploy(images=["base", "pipeline"]):
     """
-    Deploys Docker images to the repository.
+    Deploy Docker images to the repository.
+    
     This command pushes the specified Docker images to the repository. By default,
     it pushes the "base" and "pipeline" images with the "latest" version tag.
     Args:
