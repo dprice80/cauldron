@@ -349,7 +349,7 @@ def build(use_cache: bool = False,
             --build-arg DOCKER_REPO="{config['CAUL_PIPELINES_IMAGE_REPO']}" \
             --build-arg PRODUCTION_SERVICE_ACCOUNT="{profile['production-service-account']}" \
             --build-arg SANDBOX_SERVICE_ACCOUNT="{profile['sandbox-service-account']}" \
-            --build-arg DOKER_BASE_IMAGE="{profile['docker-base-image']}" .\
+            --build-arg DOCKER_BASE_IMAGE="{profile['docker-base-image']}" .\
             """)
         sub.run(run_command, shell=True, check=True)
 
