@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cauldron-ml"
-version = "0.6.1"
+version = "0.6.2"
 description = "A CLI tool for building and deploying Kubeflow Pipelines in GCP Vertex AI"
 authors = ["Darren Price <darren.price@moneysupermarket.com>"]
 readme = "README.md"
