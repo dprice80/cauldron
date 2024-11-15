@@ -34,3 +34,5 @@ __pypackages__/
 pytestout.xml
 *.DS_Store
 .fleet
+
+dist/

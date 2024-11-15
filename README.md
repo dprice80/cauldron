@@ -1,4 +1,4 @@
-# CauldronML: A lightweight CLI tool and python toolbox for creating, building and deploying production-ready Vertex Kubeflow Pipelines
+# CauldronML: A CLI tool for building and deploying Kubeflow Pipelines in GCP Vertex AI
 
 ## Quickstart (10 mins)
 
@@ -67,25 +67,37 @@ production-service-account: my-sa@foo-bar-prod@iam.gserviceaccount.com
 sandbox-service-account: my-sa@foo-bar-sandbox@iam.gserviceaccount.com
 ```
 
-Note that ```docker-repo``` should include the folder where the images are stored. The ```production-project-name``` and ```production-service-account``` can be the same as the sandbox accounts. The prefix and image tags are set within the CI pipeline workflow, not by cauldron, so the user can decide to run all production pipelines and development pipelines in the same GCP project, although we do not recommend this.
+Note that ```docker-repo``` should include the namespace where the images are stored. The ```production-project-name``` and ```production-service-account``` can be the same as the sandbox accounts. In that case prod pipelines would run alongside dev pipelines in the same GCP project. However, this setup is not recommended. It is much safer to run a separate prod project, and for the deployment to prod to be executed by an automated workflow such as github actions. We will add examples to this effect shortly.
 
-We will soon add a github action to take care of the build process, setting the arguments correctly etc. At MSM we use a matrix build strategy to build all our pipelines within a mono-repo, only building new images when we detect a change in that project.
+Now you are ready to build your first project. Cauldron has a built-in templating system, with one working example. More examples will be added at a later date.
 
 ```bash
 caul create
 ```
 
+This will give you a working example template. You should try building, deploying and running this template without modification to ensure installation succeeded and all permissions are set correctly on your account. The template will run with your user-prefix (from ~/.caulprofile).
+
+CauldronML uses a two stage docker build to save time when making changes to your pipeline. First, build the base image.
+
 ```bash
 caul build --base
 ```
+
+Then build the pipeline image. 
 
 ```bash
 caul build
 ```
 
+NOTE: Running ```caul build``` with no base image present in the local or remote docker repo will trigger the automatic build of the base image.
+
+Upload the images to your docker repo.
+
 ```bash
 caul deploy
 ```
+
+Run the pipeline.
 
 ```bash
 caul run
@@ -93,3 +105,7 @@ caul run
 
 You should now have a running pipeline.
 
+
+## CI/CD Setting up GitHub Actions Workflows
+
+Our intention is for users to build their own github actions that trigger when code is pushed to main via a PR. CauldronML works with kaniko to build both the base image and pipeline image. We will add detailed instructions on how to do this shortly.
